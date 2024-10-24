@@ -400,18 +400,20 @@ const hexagramData = {
 
             try {
                 const randomNumbers = await getRandomNumbers();
-                // Create lines from bottom (1) to top (6)
-                const lines = randomNumbers.map((num, index) => numberToLine(num, 6 - index));
+                
+                // First number corresponds to bottom line (line 1)
+                const lines = randomNumbers.map((num, index) => numberToLine(num, index + 1));
                 const changingLines = lines.filter(l => l.changing);
                 const originalKey = convertToBinaryKey(lines);
 
                 numbers.innerHTML = `Numbers cast: ${randomNumbers.join(', ')}`;
 
-                // Display original hexagram - reverse the lines array for display
-                // so line 1 appears at the bottom visually
+                // Display lines from top to bottom (6 to 1)
+                const displayLines = [...lines].reverse();
+
                 original.innerHTML = 
                     `<div class="hexagram-title">Original Hexagram</div>` +
-                    [...lines].reverse().map(l => l.display).join('') +
+                    displayLines.map(l => l.display).join('') +
                     `<div class="hexagram-meaning">${getHexagramLink(originalKey)}</div>`;
 
                 if (changingLines.length > 0) {
@@ -426,9 +428,10 @@ const hexagramData = {
                     }));
                     const changedKey = convertToBinaryKey(changedLines);
 
+                    // Display transformed hexagram
                     changed.innerHTML = 
                         `<div class="hexagram-title">Transformed Hexagram</div>` +
-                        [...lines].reverse().map(l => {
+                        displayLines.map(l => {
                             const newNum = l.changing ? (l.value === 9 ? 8 : 7) : l.value;
                             return numberToLine(newNum, l.lineNumber).display;
                         }).join('') +
@@ -448,6 +451,7 @@ const hexagramData = {
         }
 
         function convertToBinaryKey(lines) {
+            // The binary key should be read from bottom to top
             return lines.map(line => line.binary).join('');
         }
     </script>
