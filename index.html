@@ -5,7 +5,7 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        :root {
+            :root {
             --primary-color: #2d2d2d;
             --accent-color: #c0392b;
             --bg-color: #f7f3e9;
@@ -327,7 +327,7 @@ const hexagramData = {
     '010101': { name: 'Hexagram 64: Before Completion', url: 'https://www.no2do.com/hexagramme_en/878787.htm' }
 };
         async function getRandomNumbers() {
-            // Previous getRandomNumbers function remains the same
+            // Previous getRandomNumbers function remains exactly the same
             try {
                 const response = await fetch(
                     'https://www.random.org/integers/?num=6&min=6&max=9&col=1&base=10&format=plain&rnd=new',
@@ -362,7 +362,7 @@ const hexagramData = {
             return {
                 value: num,
                 changing: isChanging,
-                lineNumber: lineNumber, // This now correctly represents the line number from bottom to top
+                lineNumber: lineNumber,
                 display: `<div class="line${isChanging ? ' changing' : ''}">${isYang ? 
                     '<div class="yang"></div>' : 
                     '<div class="yin"></div><div class="yin"></div>'}</div>`,
@@ -371,7 +371,6 @@ const hexagramData = {
         }
 
         function getHexagramLink(binaryKey) {
-            // Previous getHexagramLink function remains the same
             const hexagram = hexagramData[binaryKey];
             if (!hexagram) return 'Hexagram not found';
             return `<a href="${hexagram.url}" target="_blank">${hexagram.name}</a>`;
@@ -401,22 +400,24 @@ const hexagramData = {
 
             try {
                 const randomNumbers = await getRandomNumbers();
-                // Key change: map the numbers directly to line numbers 1-6 from bottom to top
-                const lines = randomNumbers.map((num, index) => numberToLine(num, index + 1));
+                // Create lines from bottom (1) to top (6)
+                const lines = randomNumbers.map((num, index) => numberToLine(num, 6 - index));
                 const changingLines = lines.filter(l => l.changing);
                 const originalKey = convertToBinaryKey(lines);
 
                 numbers.innerHTML = `Numbers cast: ${randomNumbers.join(', ')}`;
 
-                // Display original hexagram - remove the reverse() call since lines are now in correct order
+                // Display original hexagram - reverse the lines array for display
+                // so line 1 appears at the bottom visually
                 original.innerHTML = 
                     `<div class="hexagram-title">Original Hexagram</div>` +
-                    lines.map(l => l.display).join('') +
+                    [...lines].reverse().map(l => l.display).join('') +
                     `<div class="hexagram-meaning">${getHexagramLink(originalKey)}</div>`;
 
                 if (changingLines.length > 0) {
                     original.innerHTML += `<div class="changing-lines-text">
-                        Changing lines: ${changingLines.map(l => `Line ${l.lineNumber} (${l.value})`).join(', ')}
+                        Changing lines: ${changingLines.map(l => `Line ${l.lineNumber} (${l.value})`).sort((a, b) => 
+                            parseInt(a.split(' ')[1]) - parseInt(b.split(' ')[1])).join(', ')}
                     </div>`;
 
                     const changedLines = lines.map(l => ({
@@ -427,7 +428,7 @@ const hexagramData = {
 
                     changed.innerHTML = 
                         `<div class="hexagram-title">Transformed Hexagram</div>` +
-                        lines.map(l => {
+                        [...lines].reverse().map(l => {
                             const newNum = l.changing ? (l.value === 9 ? 8 : 7) : l.value;
                             return numberToLine(newNum, l.lineNumber).display;
                         }).join('') +
