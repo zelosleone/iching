@@ -245,6 +245,12 @@
     <div class="container">
         <div class="oracle-card">
             <div class="question-container">
+                <div style="margin-top: 1rem;">
+    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" id="unchangingOnly" style="cursor: pointer;">
+        <span>Show only unchanging hexagrams</span>
+    </label>
+</div>
                 <textarea id="question" placeholder="Enter your question with a clear and focused mind..."></textarea>
             </div>
             <button onclick="castHexagram()" id="castButton">Cast Hexagram</button>
@@ -326,35 +332,36 @@ const hexagramData = {
     '101010': { name: 'Hexagram 63: After Completion', url: 'https://www.no2do.com/hexagramme_en/787878.htm' },
     '010101': { name: 'Hexagram 64: Before Completion', url: 'https://www.no2do.com/hexagramme_en/878787.htm' }
 };
-        async function getRandomNumbers() {
-            // Previous getRandomNumbers function remains exactly the same
-            try {
-                const response = await fetch(
-                    'https://www.random.org/integers/?num=6&min=6&max=9&col=1&base=10&format=plain&rnd=new',
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'text/plain'
-                        }
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error('Failed to get true random numbers from Random.org');
+async function getRandomNumbers() {
+    const unchangingOnly = document.getElementById('unchangingOnly').checked;
+    
+    try {
+        const response = await fetch(
+            `https://www.random.org/integers/?num=6&min=${unchangingOnly ? 7 : 6}&max=${unchangingOnly ? 8 : 9}&col=1&base=10&format=plain&rnd=new`,
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'text/plain'
                 }
-
-                const text = await response.text();
-                const numbers = text.trim().split('\n').map(n => parseInt(n));
-
-                if (numbers.length !== 6) {
-                    throw new Error('Did not receive the correct number of random numbers');
-                }
-
-                return numbers;
-            } catch (error) {
-                throw new Error('Cannot proceed without true randomness from Random.org. Please try again later.');
             }
+        );
+
+        if (!response.ok) {
+            throw new Error('Failed to get true random numbers from Random.org');
         }
+
+        const text = await response.text();
+        const numbers = text.trim().split('\n').map(n => parseInt(n));
+
+        if (numbers.length !== 6) {
+            throw new Error('Did not receive the correct number of random numbers');
+        }
+
+        return numbers;
+    } catch (error) {
+        throw new Error('Cannot proceed without true randomness from Random.org. Please try again later.');
+    }
+}
 
         function numberToLine(num, lineNumber) {
             const isYang = (num === 7 || num === 9);
