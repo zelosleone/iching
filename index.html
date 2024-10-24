@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>I Ching</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary-color: #2d2d2d;
+            --accent-color: #c0392b;
+            --bg-color: #f7f3e9;
+            --card-bg: #ffffff;
+            --changing-color: #808080;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Noto Serif", Georgia, serif;
+            background: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: #2d2d2d;
+            color: var(--bg-color);
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            margin: 0;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+        }
+
+        .subtitle {
+            font-style: italic;
+            margin-top: 1rem;
+            opacity: 0.8;
+        }
+
+        .container {
+            width: min(90%, 800px);
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .oracle-card {
+            background: var(--card-bg);
+            padding: clamp(1rem, 5vw, 2.5rem);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .question-container {
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+            background: rgba(247, 243, 233, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(192, 57, 43, 0.1);
+        }
+
+        .hexagram {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: rgba(247, 243, 233, 0.5);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .hexagram-title {
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+            margin-bottom: 2rem;
+            color: var(--accent-color);
+        }
+
+        .line {
+            margin: 12px auto;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            max-width: 180px;
+        }
+
+        .yang {
+            width: 100%;
+            height: 24px;
+            background: var(--primary-color);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .yin {
+            width: calc(50% - 7.5px);
+            height: 24px;
+            background: var(--primary-color);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .changing .yang, .changing .yin {
+            background: var(--changing-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 1.2rem;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            cursor: pointer;
+            background: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin: 2rem 0;
+        }
+
+        button:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .numbers {
+            text-align: center;
+            font-family: monospace;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            margin: 1.5rem 0;
+            color: var(--accent-color);
+            word-break: break-word;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            font-style: italic;
+            color: var(--accent-color);
+        }
+
+        .error {
+            color: var(--accent-color);
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(192, 57, 43, 0.1);
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .hexagram-meaning {
+            margin-top: 1rem;
+            padding: 1rem;
+            font-style: italic;
+            color: var(--primary-color);
+            opacity: 0.8;
+            word-wrap: break-word;
+        }
+
+        .hexagram-meaning a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .hexagram-meaning a:hover {
+            text-decoration: underline;
+            opacity: 0.8;
+        }
+
+        .changing-lines-text {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(247, 243, 233, 0.8);
+            border-radius: 8px;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            word-wrap: break-word;
+        }
+
+        .unchanging-note {
+            margin-top: 1rem;
+            padding: 1rem;
+            font-style: italic;
+            color: var(--accent-color);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>I CHING</h1>
+        <div class="subtitle">Consult the Book of Changes</div>
+    </div>
+    
+    <div class="container">
+        <div class="oracle-card">
+            <div class="question-container">
+                <textarea id="question" placeholder="Enter your question with a clear and focused mind..."></textarea>
+            </div>
+            <button onclick="castHexagram()" id="castButton">Cast Hexagram</button>
+            <div id="loading" class="loading" style="display: none;">
+                Consulting the oracle using true randomness...
+            </div>
+            <div id="error" class="error" style="display: none;"></div>
+            <div id="numbers" class="numbers"></div>
+            <div id="original" class="hexagram"></div>
+            <div id="changed" class="hexagram"></div>
+        </div>
+    </div>
+
+    <script>
+        // Hexagram names and URLs mapping
+const hexagramData = {
+    '111111': { name: 'Hexagram 1: The Creative', url: 'https://www.no2do.com/hexagramme_en/777777.htm' },
+    '000000': { name: 'Hexagram 2: The Receptive', url: 'https://www.no2do.com/hexagramme_en/888888.htm' },
+    '100010': { name: 'Hexagram 3: Difficulty at the Beginning', url: 'https://www.no2do.com/hexagramme_en/788878.htm' },
+    '010001': { name: 'Hexagram 4: Youthful Folly', url: 'https://www.no2do.com/hexagramme_en/878887.htm' },
+    '111010': { name: 'Hexagram 5: Waiting', url: 'https://www.no2do.com/hexagramme_en/777878.htm' },
+    '010111': { name: 'Hexagram 6: Conflict', url: 'https://www.no2do.com/hexagramme_en/878777.htm' },
+    '010000': { name: 'Hexagram 7: The Army', url: 'https://www.no2do.com/hexagramme_en/878888.htm' },
+    '000010': { name: 'Hexagram 8: Holding Together', url: 'https://www.no2do.com/hexagramme_en/888878.htm' },
+    '111011': { name: 'Hexagram 9: Small Taming', url: 'https://www.no2do.com/hexagramme_en/777877.htm' },
+    '110111': { name: 'Hexagram 10: Treading', url: 'https://www.no2do.com/hexagramme_en/778777.htm' },
+    '111000': { name: 'Hexagram 11: Peace', url: 'https://www.no2do.com/hexagramme_en/777888.htm' },
+    '000111': { name: 'Hexagram 12: Standstill', url: 'https://www.no2do.com/hexagramme_en/888777.htm' },
+    '101111': { name: 'Hexagram 13: Fellowship', url: 'https://www.no2do.com/hexagramme_en/787777.htm' },
+    '111101': { name: 'Hexagram 14: Great Possession', url: 'https://www.no2do.com/hexagramme_en/777787.htm' },
+    '001000': { name: 'Hexagram 15: Modesty', url: 'https://www.no2do.com/hexagramme_en/887888.htm' },
+    '000100': { name: 'Hexagram 16: Enthusiasm', url: 'https://www.no2do.com/hexagramme_en/888788.htm' },
+    '100110': { name: 'Hexagram 17: Following', url: 'https://www.no2do.com/hexagramme_en/788778.htm' },
+    '011001': { name: 'Hexagram 18: Work on the Decayed', url: 'https://www.no2do.com/hexagramme_en/877887.htm' },
+    '110000': { name: 'Hexagram 19: Approach', url: 'https://www.no2do.com/hexagramme_en/778888.htm' },
+    '000011': { name: 'Hexagram 20: Contemplation', url: 'https://www.no2do.com/hexagramme_en/888877.htm' },
+    '100101': { name: 'Hexagram 21: Biting Through', url: 'https://www.no2do.com/hexagramme_en/788787.htm' },
+    '101001': { name: 'Hexagram 22: Grace', url: 'https://www.no2do.com/hexagramme_en/787887.htm' },
+    '000001': { name: 'Hexagram 23: Splitting Apart', url: 'https://www.no2do.com/hexagramme_en/888887.htm' },
+    '100000': { name: 'Hexagram 24: Return', url: 'https://www.no2do.com/hexagramme_en/788888.htm' },
+    '100111': { name: 'Hexagram 25: Innocence', url: 'https://www.no2do.com/hexagramme_en/788777.htm' },
+    '111001': { name: 'Hexagram 26: Great Taming', url: 'https://www.no2do.com/hexagramme_en/777887.htm' },
+    '100001': { name: 'Hexagram 27: Nourishment', url: 'https://www.no2do.com/hexagramme_en/788887.htm' },
+    '011110': { name: 'Hexagram 28: Great Preponderance', url: 'https://www.no2do.com/hexagramme_en/877778.htm' },
+    '010010': { name: 'Hexagram 29: The Abysmal', url: 'https://www.no2do.com/hexagramme_en/878878.htm' },
+    '101101': { name: 'Hexagram 30: The Clinging', url: 'https://www.no2do.com/hexagramme_en/787787.htm' },
+    '001110': { name: 'Hexagram 31: Influence', url: 'https://www.no2do.com/hexagramme_en/887778.htm' },
+    '011100': { name: 'Hexagram 32: Duration', url: 'https://www.no2do.com/hexagramme_en/877788.htm' },
+    '001111': { name: 'Hexagram 33: Retreat', url: 'https://www.no2do.com/hexagramme_en/887777.htm' },
+    '111100': { name: 'Hexagram 34: Great Power', url: 'https://www.no2do.com/hexagramme_en/777788.htm' },
+    '000101': { name: 'Hexagram 35: Progress', url: 'https://www.no2do.com/hexagramme_en/888787.htm' },
+    '101000': { name: 'Hexagram 36: Darkening of the Light', url: 'https://www.no2do.com/hexagramme_en/787888.htm' },
+    '101011': { name: 'Hexagram 37: The Family', url: 'https://www.no2do.com/hexagramme_en/787877.htm' },
+    '110101': { name: 'Hexagram 38: Opposition', url: 'https://www.no2do.com/hexagramme_en/778787.htm' },
+    '001010': { name: 'Hexagram 39: Obstruction', url: 'https://www.no2do.com/hexagramme_en/887878.htm' },
+    '010100': { name: 'Hexagram 40: Deliverance', url: 'https://www.no2do.com/hexagramme_en/878788.htm' },
+    '110001': { name: 'Hexagram 41: Decrease', url: 'https://www.no2do.com/hexagramme_en/778887.htm' },
+    '100011': { name: 'Hexagram 42: Increase', url: 'https://www.no2do.com/hexagramme_en/788877.htm' },
+    '111110': { name: 'Hexagram 43: Breakthrough', url: 'https://www.no2do.com/hexagramme_en/777778.htm' },
+    '011111': { name: 'Hexagram 44: Coming to Meet', url: 'https://www.no2do.com/hexagramme_en/877777.htm' },
+    '000110': { name: 'Hexagram 45: Gathering Together', url: 'https://www.no2do.com/hexagramme_en/888778.htm' },
+    '011000': { name: 'Hexagram 46: Pushing Upward', url: 'https://www.no2do.com/hexagramme_en/877888.htm' },
+    '010110': { name: 'Hexagram 47: Oppression', url: 'https://www.no2do.com/hexagramme_en/878778.htm' },
+    '011010': { name: 'Hexagram 48: The Well', url: 'https://www.no2do.com/hexagramme_en/877878.htm' },
+    '101110': { name: 'Hexagram 49: Revolution', url: 'https://www.no2do.com/hexagramme_en/787778.htm' },
+    '011101': { name: 'Hexagram 50: The Cauldron', url: 'https://www.no2do.com/hexagramme_en/877787.htm' },
+    '100100': { name: 'Hexagram 51: The Arousing', url: 'https://www.no2do.com/hexagramme_en/788788.htm' },
+    '001001': { name: 'Hexagram 52: Keeping Still', url: 'https://www.no2do.com/hexagramme_en/887887.htm' },
+    '001011': { name: 'Hexagram 53: Development', url: 'https://www.no2do.com/hexagramme_en/887877.htm' },
+    '110100': { name: 'Hexagram 54: The Marrying Maiden', url: 'https://www.no2do.com/hexagramme_en/778788.htm' },
+    '101100': { name: 'Hexagram 55: Abundance', url: 'https://www.no2do.com/hexagramme_en/787788.htm' },
+    '001101': { name: 'Hexagram 56: The Wanderer', url: 'https://www.no2do.com/hexagramme_en/887787.htm' },
+    '011011': { name: 'Hexagram 57: The Gentle', url: 'https://www.no2do.com/hexagramme_en/877877.htm' },
+    '110110': { name: 'Hexagram 58: The Joyous', url: 'https://www.no2do.com/hexagramme_en/778778.htm' },
+    '010011': { name: 'Hexagram 59: Dispersion', url: 'https://www.no2do.com/hexagramme_en/878877.htm' },
+    '110010': { name: 'Hexagram 60: Limitation', url: 'https://www.no2do.com/hexagramme_en/778878.htm' },
+    '110011': { name: 'Hexagram 61: Inner Truth', url: 'https://www.no2do.com/hexagramme_en/778877.htm' },
+    '001100': { name: 'Hexagram 62: Small Preponderance', url: 'https://www.no2do.com/hexagramme_en/887788.htm' },
+    '101010': { name: 'Hexagram 63: After Completion', url: 'https://www.no2do.com/hexagramme_en/787878.htm' },
+    '010101': { name: 'Hexagram 64: Before Completion', url: 'https://www.no2do.com/hexagramme_en/878787.htm' }
+};
+        async function getRandomNumbers() {
+            try {
+                const response = await fetch(
+                    'https://www.random.org/integers/?num=6&min=6&max=9&col=1&base=10&format=plain&rnd=new',
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'text/plain'
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('Failed to get true random numbers from Random.org');
+                }
+
+                const text = await response.text();
+                const numbers = text.trim().split('\n').map(n => parseInt(n));
+
+                if (numbers.length !== 6) {
+                    throw new Error('Did not receive the correct number of random numbers');
+                }
+
+                return numbers;
+            } catch (error) {
+                throw new Error('Cannot proceed without true randomness from Random.org. Please try again later.');
+            }
+        }
+
+        function numberToLine(num, lineNumber) {
+            const isYang = (num === 7 || num === 9);
+            const isChanging = (num === 6 || num === 9);
+            return {
+                value: num,
+                changing: isChanging,
+                lineNumber: lineNumber,
+                display: `<div class="line${isChanging ? ' changing' : ''}">${isYang ? 
+                    '<div class="yang"></div>' : 
+                    '<div class="yin"></div><div class="yin"></div>'}</div>`,
+                binary: isYang ? '1' : '0'
+            };
+        }
+
+        function getHexagramLink(binaryKey) {
+            const hexagram = hexagramData[binaryKey];
+            if (!hexagram) return 'Hexagram not found';
+            return `<a href="${hexagram.url}" target="_blank">${hexagram.name}</a>`;
+        }
+
+        async function castHexagram() {
+            const question = document.getElementById('question').value.trim();
+            if (!question) {
+                alert('Please enter your question first.');
+                return;
+            }
+
+            const button = document.getElementById('castButton');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const numbers = document.getElementById('numbers');
+            const original = document.getElementById('original');
+            const changed = document.getElementById('changed');
+
+            numbers.innerHTML = '';
+            original.innerHTML = '';
+            changed.innerHTML = '';
+            error.style.display = 'none';
+
+            button.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                const randomNumbers = await getRandomNumbers();
+                const lines = randomNumbers.map((num, index) => numberToLine(num, 6 - index));
+                const changingLines = lines.filter(l => l.changing);
+                const originalKey = convertToBinaryKey(lines);
+
+                numbers.innerHTML = `Numbers cast: ${randomNumbers.join(', ')}`;
+
+                // Display original hexagram
+                original.innerHTML = 
+                    `<div class="hexagram-title">Original Hexagram</div>` +
+                    lines.map(l => l.display).reverse().join('') +
+                    `<div class="hexagram-meaning">${getHexagramLink(originalKey)}</div>`;
+
+                // Only show changing lines and transformed hexagram if there are changing lines
+                if (changingLines.length > 0) {
+                    original.innerHTML += `<div class="changing-lines-text">
+                        Changing lines: ${changingLines.map(l => `Line ${l.lineNumber} (${l.value})`).join(', ')}
+                    </div>`;
+
+                    const changedLines = lines.map(l => ({
+                        ...l,
+                        binary: l.changing ? (l.binary === '1' ? '0' : '1') : l.binary
+                    }));
+                    const changedKey = convertToBinaryKey(changedLines);
+
+                    changed.innerHTML = 
+                        `<div class="hexagram-title">Transformed Hexagram</div>` +
+                        lines.map(l => {
+                            const newNum = l.changing ? (l.value === 9 ? 8 : 7) : l.value;
+                            return numberToLine(newNum, l.lineNumber).display;
+                        }).reverse().join('') +
+                        `<div class="hexagram-meaning">${getHexagramLink(changedKey)}</div>`;
+                } else {
+                    original.innerHTML += `<div class="unchanging-note">
+                        This is a stable hexagram with no changing lines.
+                    </div>`;
+                }
+            } catch (err) {
+                error.textContent = err.message;
+                error.style.display = 'block';
+            } finally {
+                button.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function convertToBinaryKey(lines) {
+            return lines.map(line => line.binary).join('');
+        }
+    </script>
+</body>
+</html>
