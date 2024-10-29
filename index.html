@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>I Ching</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="header">
+        <h1>I CHING</h1>
+        <div class="subtitle">Consult the Book of Changes</div>
+    </div>
+    
+    <div class="container">
+        <div class="oracle-card">
+            <div class="question-container">
+                <div style="margin-top: 1rem;">
+    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" id="unchangingOnly" style="cursor: pointer;">
+        <span>Show only unchanging hexagrams</span>
+    </label>
+</div>
+                <textarea id="question" placeholder="Enter your question with a clear and focused mind..."></textarea>
+            </div>
+            <button onclick="castHexagram()" id="castButton">Cast Hexagram</button>
+            <div id="loading" class="loading" style="display: none;">
+                Consulting the oracle using true randomness...
+            </div>
+            <div id="error" class="error" style="display: none;"></div>
+            <div id="numbers" class="numbers"></div>
+            <div id="original" class="hexagram"></div>
+            <div id="changed" class="hexagram"></div>
+        </div>
+    </div>
+<script src="script.js"></script>
+</body>
+</html>

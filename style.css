@@ -1,0 +1,230 @@
+:root {
+    --primary-color: #2d2d2d;
+    --accent-color: #c0392b;
+    --bg-color: #f7f3e9;
+    --card-bg: #ffffff;
+    --changing-color: #808080;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Noto Serif", Georgia, serif;
+    background: var(--bg-color);
+    color: var(--primary-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.header {
+    text-align: center;
+    padding: 2rem 1rem;
+    background: #2d2d2d;
+    color: var(--bg-color);
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    margin: 0;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+}
+
+.subtitle {
+    font-style: italic;
+    margin-top: 1rem;
+    opacity: 0.8;
+}
+
+.container {
+    width: min(90%, 800px);
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.oracle-card {
+    background: var(--card-bg);
+    padding: clamp(1rem, 5vw, 2.5rem);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.question-container {
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+textarea {
+    width: 100%;
+    padding: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+    background: rgba(247, 243, 233, 0.5);
+    transition: all 0.3s ease;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(192, 57, 43, 0.1);
+}
+
+.hexagram {
+    margin: 2rem 0;
+    padding: 1rem;
+    background: rgba(247, 243, 233, 0.5);
+    border-radius: 10px;
+    text-align: center;
+}
+
+.hexagram-title {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    margin-bottom: 2rem;
+    color: var(--accent-color);
+}
+
+.line {
+    margin: 12px auto;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    transition: all 0.3s ease;
+    max-width: 180px;
+}
+
+.yang {
+    width: 100%;
+    height: 24px;
+    background: var(--primary-color);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.yin {
+    width: calc(50% - 7.5px);
+    height: 24px;
+    background: var(--primary-color);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.changing .yang,
+.changing .yin {
+    background: var(--changing-color);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 1.2rem;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    cursor: pointer;
+    background: var(--primary-color);
+    color: var(--bg-color);
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 2rem 0;
+}
+
+button:hover {
+    background: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+button:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.numbers {
+    text-align: center;
+    font-family: monospace;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    margin: 1.5rem 0;
+    color: var(--accent-color);
+    word-break: break-word;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    font-style: italic;
+    color: var(--accent-color);
+}
+
+.error {
+    color: var(--accent-color);
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(192, 57, 43, 0.1);
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.hexagram-meaning {
+    margin-top: 1rem;
+    padding: 1rem;
+    font-style: italic;
+    color: var(--primary-color);
+    opacity: 0.8;
+    word-wrap: break-word;
+}
+
+.hexagram-meaning a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.hexagram-meaning a:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+.changing-lines-text {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(247, 243, 233, 0.8);
+    border-radius: 8px;
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+    word-wrap: break-word;
+}
+
+.unchanging-note {
+    margin-top: 1rem;
+    padding: 1rem;
+    font-style: italic;
+    color: var(--accent-color);
+    text-align: center;
+}
